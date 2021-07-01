@@ -12,6 +12,8 @@ import expenses from  '../../repositories/expenses';
 import formatCurrency from '../../utils/formatCurrenty';
 import formatDate from '../../utils/formatDate';
 
+import listMonths from '../../utils/listMonths';
+
 interface IRouteParams{
   match: {
     params: {
@@ -43,19 +45,35 @@ const List: React.FC<IRouteParams> = ({ match }) => {
     return type === 'entry-balance' ? gains : expenses
   }, [type])
 
-  const months = [
-    { value: 8, label: 'Agosto'},
-    { value: 7, label: 'Julho'},
-    { value: 6, label: 'Junho'},
-    { value: 1, label: 'Janeiro'},
-    { value: 3, label: 'Março'},
-  ];
+  const months = useMemo(() => {
+    return listMonths.map((month, index) => {
+      return {
+        value: index + 1,
+        label: month
+      }
+    })
+  }, []);
 
-  const years = [
-    { value: 2019, label: 2019 },
-    { value: 2021, label: 2021 },
-    { value: 2020, label: 2020 },
-  ];
+  const years = useMemo(() => {
+    let uniqueYears: number[] = [];
+
+    listData.forEach((item) => {
+      const date = new Date(item.date);
+      const year = date.getFullYear();
+
+      if(!uniqueYears.includes(year)){
+        uniqueYears.push(year);
+      }
+    });
+
+    return uniqueYears.map(year => {
+      return {
+        value: year,
+        label: year
+      }
+    });
+
+  }, [listData]);
 
   useEffect(() => {
     let filteredDate = listData.filter((item) => {
